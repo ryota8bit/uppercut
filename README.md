@@ -1,6 +1,5 @@
 # UpperCut!!
-middleware chain for [fasthttprouter](https://github.com/buaazp/fasthttprouter)
-middleware runs in goroutine
+middleware chain for [fasthttprouter](https://github.com/buaazp/fasthttprouter), middleware runs in goroutine
 
 # usage
 ```golang
@@ -11,7 +10,7 @@ m := uppercut.Counters{RequestHandler: fasthttprouter.Router, Counters: middlewa
 fasthttp.ListenAndServe(":8080", m.Handler)
 ```
 
-# Handler interface sample
+# Counter interface sample
 ```golang
 func (l *LoggingHandler) Call(ctx *fasthttp.RequestCtx) {
 	l.logger.Log("request: ", fmt.Sprintf("Host: %s, Path: %s, Method: %s", ctx.Host(), ctx.Path(), ctx.Method()))
