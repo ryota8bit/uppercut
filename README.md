@@ -3,11 +3,11 @@ middleware chain for [fasthttprouter](https://github.com/buaazp/fasthttprouter),
 
 # usage
 ```golang
-counters := []uppercut.Counter{loggingHandler}
-beforeCounters := []uppercut.Counter{panicHandler}
-afterCounters := []uppercut.Counter{recoverHandler}
-m := uppercut.Counters{RequestHandler: fasthttprouter.Router, Counters: middlewares, , BeforeCounters: beforeCounters, , AfterCounters: afterCounters}
-fasthttp.ListenAndServe(":8080", m.Handler)
+counter := uppercut.NewUppercut(router.Handler)
+counter.AddCounters(loggerMiddleware)
+counter.AddBeforeCounters(panicHandler)
+counter.AddAfterCounters(recoverHandler)
+fasthttp.ListenAndServe(":8080", counter.Handler)
 ```
 
 # Counter interface sample
