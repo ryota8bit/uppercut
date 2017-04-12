@@ -24,6 +24,18 @@ func (m Counters) Handler(requestCtx *fasthttp.RequestCtx) {
 	upperCut(afterM, requestCtx)
 }
 
+func (m Counters) AddCounters(c Counter) {
+	m.Counters = append(m.Counters, c)
+}
+
+func (m Counters) AddBeforeCounters(c Counter) {
+	m.BeforeCounters = append(m.BeforeCounters, c)
+}
+
+func (m Counters) AddAfterCounters(c Counter) {
+	m.AfterCounters = append(m.AfterCounters, c)
+}
+
 type Counter interface {
 	Call(ctx *fasthttp.RequestCtx)
 }
