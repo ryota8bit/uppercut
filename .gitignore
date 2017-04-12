@@ -1,0 +1,8 @@
+*.db
+!.gitkeep
+.DS_Store
+pkg/*
+bin/*
+vendor/*
+!/vendor/manifest
+tmp/*

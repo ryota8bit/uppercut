@@ -8,32 +8,36 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-type Counters struct {
+type Uppercut struct {
 	RequestHandler fasthttp.RequestHandler
 	Counters       []Counter
 	BeforeCounters []Counter
 	AfterCounters  []Counter
 }
 
-func (m Counters) Handler(requestCtx *fasthttp.RequestCtx) {
+func NewUppercut(h fasthttp.RequestHandler) *Uppercut {
+	return &Uppercut{RequestHandler: h}
+}
+
+func (m Uppercut) AddCounters(c Counter) {
+	m.Counters = append(m.Counters, c)
+}
+
+func (m Uppercut) AddBeforeCounters(c Counter) {
+	m.BeforeCounters = append(m.BeforeCounters, c)
+}
+
+func (m Uppercut) AddAfterCounters(c Counter) {
+	m.AfterCounters = append(m.AfterCounters, c)
+}
+
+func (m Uppercut) Handler(requestCtx *fasthttp.RequestCtx) {
 	beforeM := append(m.Counters, m.BeforeCounters...)
 	afterM := append(m.Counters, m.AfterCounters...)
 
 	upperCut(beforeM, requestCtx)
 	m.RequestHandler(requestCtx)
 	upperCut(afterM, requestCtx)
-}
-
-func (m Counters) AddCounters(c Counter) {
-	m.Counters = append(m.Counters, c)
-}
-
-func (m Counters) AddBeforeCounters(c Counter) {
-	m.BeforeCounters = append(m.BeforeCounters, c)
-}
-
-func (m Counters) AddAfterCounters(c Counter) {
-	m.AfterCounters = append(m.AfterCounters, c)
 }
 
 type Counter interface {
