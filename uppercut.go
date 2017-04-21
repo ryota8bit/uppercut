@@ -9,10 +9,13 @@ import (
 )
 
 type Uppercut struct {
-	RequestHandler fasthttp.RequestHandler
-	Counters       []Counter
-	BeforeCounters []Counter
-	AfterCounters  []Counter
+	RequestHandler     fasthttp.RequestHandler
+	Counters           []Counter
+	BeforeCounters     []Counter
+	AfterCounters      []Counter
+	SyncCounters       []Counter
+	BeforeSyncCounters []Counter
+	AfterSyncCounters  []Counter
 }
 
 func NewUppercut(h fasthttp.RequestHandler) *Uppercut {
@@ -31,13 +34,37 @@ func (m *Uppercut) AddAfterCounters(c Counter) {
 	m.AfterCounters = append(m.AfterCounters, c)
 }
 
-func (m Uppercut) Handler(requestCtx *fasthttp.RequestCtx) {
-	beforeM := append(m.Counters, m.BeforeCounters...)
-	afterM := append(m.Counters, m.AfterCounters...)
+func (m *Uppercut) AddSyncCounters(c Counter) {
+	m.SyncCounters = append(m.SyncCounters, c)
+}
 
-	upperCut(beforeM, requestCtx)
+func (m *Uppercut) AddBeforeSyncCounters(c Counter) {
+	m.BeforeSyncCounters = append(m.BeforeSyncCounters, c)
+}
+
+func (m *Uppercut) AddAfterSyncCounters(c Counter) {
+	m.AfterSyncCounters = append(m.AfterSyncCounters, c)
+}
+
+func (m Uppercut) Handler(requestCtx *fasthttp.RequestCtx) {
+	beforeC := append(m.Counters, m.BeforeCounters...)
+	afterC := append(m.Counters, m.AfterCounters...)
+	beforeS := append(m.SyncCounters, m.BeforeSyncCounters...)
+	afterS := append(m.SyncCounters, m.AfterSyncCounters...)
+
+	upperCut(beforeC, requestCtx)
+	sycCut(beforeS, requestCtx)
+
 	m.RequestHandler(requestCtx)
-	upperCut(afterM, requestCtx)
+
+	upperCut(afterC, requestCtx)
+	sycCut(afterS, requestCtx)
+}
+
+func sycCut(counters []Counter, requestCtx *fasthttp.RequestCtx) {
+	for _, m := range counters {
+		m.Call(requestCtx)
+	}
 }
 
 func upperCut(counters []Counter, requestCtx *fasthttp.RequestCtx) {
