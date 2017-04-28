@@ -61,8 +61,8 @@ func (m Uppercut) Handler(requestCtx *fasthttp.RequestCtx) {
 	hook(afterS, requestCtx)
 }
 
-func hook(counters []Counter, requestCtx *fasthttp.RequestCtx) {
-	for _, m := range counters {
+func hook(hooks []Hook, requestCtx *fasthttp.RequestCtx) {
+	for _, m := range hooks {
 		m.Call(requestCtx)
 	}
 }
