@@ -13,9 +13,9 @@ type Uppercut struct {
 	Counters           []Counter
 	BeforeCounters     []Counter
 	AfterCounters      []Counter
-	SyncCounters       []Counter
-	BeforeSyncCounters []Counter
-	AfterSyncCounters  []Counter
+	Hooks              []Hook
+	BeforeHooks        []Hook
+	AfterHooks         []Hook
 }
 
 func NewUppercut(h fasthttp.RequestHandler) *Uppercut {
@@ -34,34 +34,34 @@ func (m *Uppercut) AddAfterCounters(c Counter) {
 	m.AfterCounters = append(m.AfterCounters, c)
 }
 
-func (m *Uppercut) AddSyncCounters(c Counter) {
-	m.SyncCounters = append(m.SyncCounters, c)
+func (m *Uppercut) AddHooks(c Counter) {
+	m.Hooks = append(m.Hooks, c)
 }
 
-func (m *Uppercut) AddBeforeSyncCounters(c Counter) {
-	m.BeforeSyncCounters = append(m.BeforeSyncCounters, c)
+func (m *Uppercut) AddBeforeHooks(c Counter) {
+	m.BeforeHooks = append(m.BeforeHooks, c)
 }
 
-func (m *Uppercut) AddAfterSyncCounters(c Counter) {
-	m.AfterSyncCounters = append(m.AfterSyncCounters, c)
+func (m *Uppercut) AddAfterHooks(c Counter) {
+	m.AfterHooks = append(m.AfterHooks, c)
 }
 
 func (m Uppercut) Handler(requestCtx *fasthttp.RequestCtx) {
 	beforeC := append(m.Counters, m.BeforeCounters...)
 	afterC := append(m.Counters, m.AfterCounters...)
-	beforeS := append(m.SyncCounters, m.BeforeSyncCounters...)
-	afterS := append(m.SyncCounters, m.AfterSyncCounters...)
+	beforeS := append(m.Hooks, m.BeforeHooks...)
+	afterS := append(m.Hooks, m.AfterHooks...)
 
 	upperCut(beforeC, requestCtx)
-	sycCut(beforeS, requestCtx)
+	hook(beforeS, requestCtx)
 
 	m.RequestHandler(requestCtx)
 
 	upperCut(afterC, requestCtx)
-	sycCut(afterS, requestCtx)
+	hook(afterS, requestCtx)
 }
 
-func sycCut(counters []Counter, requestCtx *fasthttp.RequestCtx) {
+func hook(counters []Counter, requestCtx *fasthttp.RequestCtx) {
 	for _, m := range counters {
 		m.Call(requestCtx)
 	}
